@@ -3,21 +3,23 @@ close all
 clear
 clc
 
-rng(1)
-numGen = 7000; %number of (maximal) generations, can be lower if ecosystem dies out
+numGen = 100000; %number of (maximal) generations, can be lower if ecosystem dies out
 a = 5; % constant affecting reproduction rate
 dim = 2; %number of metabolites in system
 u = 1; % influx metabolite
 p = 0.001; % dictates the mutation probability
 my = 500; %constant dictating the increase of metabolite
-numRuns = 1; % number of runs
+numRuns = 24; % number of runs
 dataFreq = 1; % storing frequency of data
-death = zeros(1,numRuns); % list for saving survival time length, 0 if no extinction
+death = ones(1,numRuns); % list for saving survival time length, 0 if no extinction
+death = -1.*death; % all simulations that dont die out in numGen generations are -1 by default
 
-for run = 1:numRuns
-    run
-    rng(6);
-    tic
+tic
+parfor run = 1:numRuns
+%for run = 1:numRuns
+    %run
+    rng(run,'twister');
+    
     r = zeros(1,dim); % metabolites in system
     t = 0;
     dt = 0;
@@ -29,11 +31,11 @@ for run = 1:numRuns
     end
     
     numSpecies = length(species); % number of species
-    speciesData = zeros(numSpecies,numGen); %species data
-    rData = zeros(dim,numGen); % metabolites in system
-    tData = zeros(1,numGen); % time data
-    specSum = zeros(1,numGen); % total species count data
-    dataIndex = 2; % index for storing data, index 1 is the initial conditions
+%     speciesData = zeros(numSpecies,numGen); %species data
+%     rData = zeros(dim,numGen); % metabolites in system
+%     tData = zeros(1,numGen); % time data
+%     specSum = zeros(1,numGen); % total species count data
+%     dataIndex = 2; % index for storing data, index 1 is the initial conditions
     
     
     % the matrix sij stores which metabolites each species consumes
@@ -48,12 +50,15 @@ for run = 1:numRuns
     end
     
     % simulation
-    i = 0;
+    i = 1;
     while (t < numGen)
         %i
-        disp("timestep: "+i);
+        %disp("timestep: "+i);
         % first  a random time interval dt is generated
         %dt = exprnd(1/sum(species));
+        %if(t> (numGen-0.001))
+        %    death(run) = -1*t;
+        %end
         
         sumSpecies = sum(species);
         if(sumSpecies == 0)
@@ -78,7 +83,7 @@ for run = 1:numRuns
         % The probability that species Sij is selected is Sij(t)/N(t)
         % where N(t) is the total population.
         randN = rand*sumSpecies;
-        disp("randN for species selection: " + randN);
+        %disp("randN for species selection: " + randN);
         temp = 0;
         for j =1:numSpecies
             temp = temp + species(j);
@@ -90,15 +95,15 @@ for run = 1:numRuns
         
         si = sij(1,selectedS);
         sj = sij(2,selectedS);
-        disp("si = " + si);
-        disp("sj = " + sj);
-        disp("dt = " + dt);
-        disp("selectedS: " + selectedS)
-        disp(" species: ")
-        disp(species)
-        disp("resources at i: ")
-        disp(r);
-        disp("added resources dt*my: " + dt*my);
+        %disp("si = " + si);
+        %disp("sj = " + sj);
+        %disp("dt = " + dt);
+        %disp("selectedS: " + selectedS)
+        %disp(" species: ")
+        %disp(species)
+        %disp("resources at i: ")
+        %disp(r);
+        %disp("added resources dt*my: " + dt*my);
         
         % Species selectedS reproduces with probability q(Rj(t),Ri(t))
         % or dies with probabiliy 1-q(Rj(t),Ri(t))
@@ -108,10 +113,10 @@ for run = 1:numRuns
                     
                     qRjRi = r(si) * r(sj)/((a + r(si)) * (a + r(sj)));
                     randn = rand;
-                    disp("qRjRi: " + qRjRi);
-                    disp("randn: " + randn);
+                    %disp("qRjRi: " + qRjRi);
+                    %disp("randn: " + randn);
                     if(randn < qRjRi)
-                        disp("1.1: (si != sj) reproduction");
+                        %disp("1.1: (si != sj) reproduction");
                         % the individual consumes metabolites
                         r(si) = r(si)-1;
                         r(sj) = r(sj)-1;
@@ -129,8 +134,8 @@ for run = 1:numRuns
                         % the individual reproduces, mutating to another species
                         % with probability p
                         randn = rand;
-                        disp("mutation p: " + p);
-                        disp("randn: " + randn);
+                        %disp("mutation p: " + p);
+                        %disp("randn: " + randn);
                         if(rand > p)
                             species(selectedS) = species(selectedS)+1;
                         else
@@ -142,26 +147,26 @@ for run = 1:numRuns
                         end
                         
                     else
-                        disp("1.2: (si != sj) rand > qRjRi the individual dies");
+                        %disp("1.2: (si != sj) rand > qRjRi the individual dies");
                         % since rand > qRjRi the individual dies
                         species(selectedS) = species(selectedS)-1;
                     end
                 else
-                    disp("2: (si != sj) not enough metabolties, death");
+                    %disp("2: (si != sj) not enough metabolties, death");
                     % there aren't enough metabolties, the individual dies
                     species(selectedS) = species(selectedS)-1;
                 end
             elseif(r(si) > 1)
                 % si == sj
-                disp("3: si = sj");
+                %disp("3: si = sj");
                 qRjRi = r(si) * (r(sj)-1)/(  (a -1 + r(si) ) * (a + r(sj)));
                 
                 randn = rand;
-                disp("qRjRi: " + qRjRi);
-                disp("randn: " + randn);
+                %disp("qRjRi: " + qRjRi);
+                %disp("randn: " + randn);
                 
                 if(randn < qRjRi)
-                    disp("3.1: (si = sj) reproduction");
+                    %disp("3.1: (si = sj) reproduction");
                     % the individual consumes metabolites
                     r(si) = r(si)-2;
                     
@@ -178,8 +183,8 @@ for run = 1:numRuns
                     % the individual reproduces, mutating to another species
                     % with probability p
                     randn = rand;
-                    disp("mutation p: " + p);
-                    disp("randn: " + randn);
+                    %disp("mutation p: " + p);
+                    %disp("randn: " + randn);
                     if(randn > p)
                         species(selectedS) = species(selectedS)+1;
                     else
@@ -190,56 +195,56 @@ for run = 1:numRuns
                         species(mutant) = species(mutant) +1;
                     end
                 else
-                    disp("3.2 (si = sj) since rand > qRjRi the individual dies");
+                    %disp("3.2 (si = sj) since rand > qRjRi the individual dies");
                     % since rand > qRjRi the individual dies
                     species(selectedS) = species(selectedS)-1;
                 end
             else
-                disp("4 (si = sj) less than two metabolites, death");
+                %disp("4 (si = sj) less than two metabolites, death");
                 % less than two metabolites, death
                 species(selectedS) = species(selectedS)-1;
             end
         end
-        disp("resources after timestep " + i +": ")
-        disp(r);
-        disp(" species after timestep " + i +": ")
-        disp(species);
+        %disp("resources after timestep " + i +": ")
+        %disp(r);
+        %disp(" species after timestep " + i +": ")
+        %disp(species);
         
-        disp("--------------------------")
+        %disp("--------------------------")
         
         % time is updated and data is stored
         
-        if(mod(i,dataFreq) == 0)
-            tData(dataIndex) = t +dt;
-            speciesData(:,dataIndex) = species;
-            rData(:,dataIndex)=r;
-            specSum(dataIndex) = sum(species);
-            dataIndex = dataIndex +1;
-        end
+%         if(mod(i,dataFreq) == 0)
+%             tData(dataIndex) = t +dt;
+%             speciesData(:,dataIndex) = species;
+%             rData(:,dataIndex)=r;
+%             specSum(dataIndex) = sum(species);
+%             dataIndex = dataIndex +1;
+%         end
         
         t = t+dt;
         i = i+1;
-        w = input('press Enter');
+        %w = input('press Enter');
         
     end
-    disp("lapsed runtime: " + toc);
 end
 
+disp("lapsed runtime: " + toc);
 %% plots
-figure(1)
-specTransp = speciesData';
-area(tData(1,1:1:end),speciesData(:,1:1:end)')
-xlabel('time');
-ylabel('nr individuals');
-legend('species 11','species 21','species 22')
-
-figure(2)
-plot(tData,specSum)
-xlabel('time');
-ylabel('# individuals');
-
-figure(3)
-plot(tData,rData)
-xlabel('time');
-ylabel('resources');
-legend('metabolite 1','mteabolite 2')
+% figure(1)
+% specTransp = speciesData';
+% area(tData(1,1:1:end),speciesData(:,1:1:end)')
+% xlabel('time');
+% ylabel('nr individuals');
+% legend('species 11','species 21','species 22')
+% 
+% figure(2)
+% plot(tData,specSum)
+% xlabel('time');
+% ylabel('# individuals');
+% 
+% figure(3)
+% plot(tData,rData)
+% xlabel('time');
+% ylabel('resources');
+% legend('metabolite 1','mteabolite 2')

@@ -233,10 +233,8 @@ end
 disp("lapsed runtime: " + toc);
 %% postprocessing
 
-for x=1:ceil
-    if(death(x) ~= -1)
-        death_postp(x) = death(x);
-    end
+for x=1:length(death)
+    
 end
 %% plots
 % figure(1)
