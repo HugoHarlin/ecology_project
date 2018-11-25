@@ -3,19 +3,19 @@ close all
 clear
 clc
 
-numGen = 1000000; %number of (maximal) generations, can be lower if ecosystem dies out
+numGen = 30000; %number of (maximal) generations, can be lower if ecosystem dies out
 a = 5; % constant affecting reproduction rate
 dim = 3; %number of metabolites in system
 u = 2; % influx metabolite
 p = 0.001; % dictates the mutation probability
 my = 500; %constant dictating the increase of metabolite
-numRuns = 1000; % number of runs
+numRuns = 1; % number of runs
 dataFreq = 1; % storing frequency of data
 death = ones(1,numRuns); % list for saving survival time length, 0 if no extinction
 death = -1.*death; % all simulations that dont die out in numGen generations are -1 by default
 
 tic
-parfor run = 1:numRuns
+for run = 1:numRuns
 %for run = 1:numRuns
     %run
     selectedS = 0;
@@ -233,11 +233,11 @@ end
 disp("lapsed runtime: " + toc);
 %% postprocessing
 
-for x=1:ceil
-    if(death(x) ~= -1)
-        death_postp(x) = death(x);
-    end
-end
+% for x=1:ceil
+%     if(death(x) ~= -1)
+%         death_postp(x) = death(x);
+%     end
+% end
 %% plots
 % figure(1)
 % specTransp = speciesData';
