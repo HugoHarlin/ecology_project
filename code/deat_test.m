@@ -6,7 +6,7 @@ clc
 numGen = 100000; %number of (maximal) generations, can be lower if ecosystem dies out
 a = 5; % constant affecting reproduction rate
 dim =4; %number of metabolites in system
-u = 3; % influx metabolite
+u = 4; % influx metabolite
 p = 0.001; % dictates the mutation probability
 my = 500; %constant dictating the increase of metabolite
 numRuns = 1000; % number of runs
