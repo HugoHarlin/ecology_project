@@ -9,4 +9,13 @@ for i=1:len
         index = index +1;
     end
 end
+figure(1)
 histfit(death_clean);
+
+figure(2)
+data = hist(death_clean,30);
+lambdahat = poissfit(data(2:end));
+y = poisspdf(data(2:end),lambdahat);
+plot(data(2:end),y,'+')
+
+
