@@ -3,7 +3,7 @@ close all
 clear
 clc
 
-numGen = 100000; %number of (maximal) generations, can be lower if ecosystem dies out
+numGen = 1000000; %number of (maximal) generations, can be lower if ecosystem dies out
 a = 5; % constant affecting reproduction rate
 dim =5; %number of metabolites in system
 u = 1; % influx metabolite
